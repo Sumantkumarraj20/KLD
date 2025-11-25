@@ -1,1 +1,1562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>🌟 Kids Stars Dashboard</title>
+  <style>
+    :root {
+      --bg1: #f5f7ff;
+      --primary: #FF6B6B;
+      --secondary: #4ECDC4;
+      --accent: #FFD166;
+      --success: #51cf66;
+      --card: #ffffff;
+      --muted: #6c6f76;
+      --shadow: 0 14px 40px rgba(17, 17, 26, 0.12);
+      --shadow-lg: 0 20px 60px rgba(17, 17, 26, 0.15);
+      --radius: 20px;
+      --radius-sm: 12px;
+    }
 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: "Comic Neue", "Baloo 2", "Segoe UI", system-ui, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #222;
+      line-height: 1.5;
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+
+    header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      margin: 0;
+      line-height: 1.1;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    header p {
+      margin: 8px 0 0;
+      opacity: .95;
+      font-size: 1.1rem;
+    }
+
+    .nav-back {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    /* kid selector */
+    .kid-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+      margin: 25px 0;
+    }
+
+    .kid-button {
+      background: var(--card);
+      border-radius: 50px;
+      padding: 12px 24px;
+      border: 3px solid transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow);
+      transition: all .3s ease;
+      font-size: 1.1rem;
+    }
+
+    .kid-button .emoji {
+      font-size: 1.8rem;
+    }
+
+    .kid-button .label {
+      font-weight: 800;
+      color: #333;
+    }
+
+    .kid-button:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .kid-button.active {
+      transform: scale(1.05);
+      border-color: var(--accent);
+      box-shadow: 0 25px 60px rgba(255, 209, 102, 0.3);
+      background: linear-gradient(135deg, var(--accent), #ffde82);
+    }
+
+    /* main dashboard */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 25px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 25px;
+      box-shadow: var(--shadow);
+      transition: transform .3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .kid-profile {
+      text-align: center;
+      padding: 35px 25px;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #fff, #f8f9ff);
+    }
+
+    .kid-profile::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+
+    .kid-profile .emoji {
+      font-size: 5rem;
+      display: block;
+      margin-bottom: 10px;
+      filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.15));
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-12px);
+      }
+    }
+
+    .kid-name {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #2b2b2b;
+      margin-bottom: 5px;
+    }
+
+    .kid-nick {
+      opacity: .7;
+      font-style: italic;
+      margin-bottom: 15px;
+      font-size: 1.2rem;
+    }
+
+    .stars-container {
+      border-radius: 60px;
+      padding: 25px;
+      background: linear-gradient(135deg, var(--accent), #FF9E6D);
+      margin: 20px auto;
+      width: 85%;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+      border: 4px solid rgba(255, 255, 255, 0.6);
+    }
+
+    .stars-container::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 1%, transparent 1%);
+      background-size: 25px 25px;
+      animation: sparkle 4s linear infinite;
+    }
+
+    @keyframes sparkle {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .stars-count {
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .stars-label {
+      color: white;
+      opacity: .95;
+      font-weight: 700;
+      font-size: 1.3rem;
+    }
+
+    /* progress */
+    .progress-section {
+      padding: 20px;
+    }
+
+    .progress-title {
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: #333;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .progress-bar {
+      height: 20px;
+      background: #e9ecef;
+      border-radius: 50px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--secondary), var(--success));
+      width: 0;
+      transition: width 1s cubic-bezier(.2, .9, .3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        left: -100%;
+      }
+      100% {
+        left: 100%;
+      }
+    }
+
+    .progress-text {
+      text-align: center;
+      margin-top: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
+
+    /* rewards */
+    .rewards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .reward-card {
+      background: linear-gradient(180deg, #fff, #fbfbfb);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: all .3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .reward-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--secondary);
+      transform: scaleX(0);
+      transition: transform .3s ease;
+    }
+
+    .reward-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .reward-card .title {
+      font-weight: 900;
+      color: #2b2b2b;
+      font-size: 1.2rem;
+      margin-bottom: 8px;
+    }
+
+    .reward-card .desc {
+      color: var(--muted);
+      font-size: 1rem;
+      margin: 8px 0;
+      line-height: 1.4;
+    }
+
+    .reward-cost {
+      font-weight: 900;
+      font-size: 1.3rem;
+      color: var(--primary);
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    .reward-card.affordable {
+      border-color: var(--secondary);
+      box-shadow: 0 15px 40px rgba(78, 205, 196, 0.15);
+      transform: translateY(-5px);
+      background: linear-gradient(135deg, #f0fdfa, #ffffff);
+    }
+
+    .reward-card.affordable:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 50px rgba(78, 205, 196, 0.25);
+    }
+
+    .reward-status {
+      text-align: center;
+      margin-top: 8px;
+      font-size: .9rem;
+      font-weight: 600;
+    }
+
+    .status-available {
+      color: var(--success);
+    }
+
+    .status-soon {
+      color: var(--accent);
+    }
+
+    /* suggestions */
+    .suggestions {
+      margin-top: 15px;
+    }
+
+    .suggestions h3 {
+      font-weight: 900;
+      margin-bottom: 12px;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .suggestion-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: #f4f7ff;
+      border-radius: var(--radius-sm);
+      margin-bottom: 10px;
+      transition: all .2s ease;
+      border-left: 4px solid var(--accent);
+    }
+
+    .suggestion-item:hover {
+      transform: translateX(5px);
+      background: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .badge {
+      background: var(--accent);
+      padding: 6px 12px;
+      border-radius: 50px;
+      font-weight: 900;
+      color: #3a2b12;
+      font-size: .9rem;
+    }
+
+    /* right column */
+    .right-col .info {
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 1rem;
+      transition: all .2s ease;
+      text-decoration: none;
+    }
+
+    .btn.ghost {
+      background: transparent;
+      border: 2px solid rgba(0, 0, 0, 0.08);
+      color: #555;
+    }
+
+    .btn.ghost:hover {
+      background: rgba(0, 0, 0, 0.03);
+      border-color: rgba(0, 0, 0, 0.15);
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--primary), #ff8a8a);
+      color: white;
+      box-shadow: 0 8px 25px rgba(255, 107, 107, 0.25);
+    }
+
+    .btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(255, 107, 107, 0.35);
+    }
+
+    .btn.success {
+      background: linear-gradient(135deg, var(--success), #69db7c);
+      color: white;
+      box-shadow: 0 8px 25px rgba(81, 207, 102, 0.25);
+    }
+
+    .btn.success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(81, 207, 102, 0.35);
+    }
+
+    .btn.small {
+      padding: 10px 16px;
+      font-size: .95rem;
+    }
+
+    .btn:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 20px;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal {
+      background: white;
+      padding: 30px;
+      border-radius: var(--radius);
+      max-width: 500px;
+      width: 100%;
+      box-shadow: var(--shadow-lg);
+      animation: modalAppear .3s ease;
+    }
+
+    @keyframes modalAppear {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .modal h3 {
+      margin: 0 0 15px;
+      font-size: 1.4rem;
+      color: #2b2b2b;
+    }
+
+    .modal p {
+      margin: 10px 0;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    .flex {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    /* loading */
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 50px;
+      color: white;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 6px solid rgba(255, 255, 255, 0.2);
+      border-top-color: rgba(255, 255, 255, 0.9);
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(1turn);
+      }
+    }
+
+    /* confetti */
+    .confetti {
+      position: fixed;
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    /* toast */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.85);
+      color: white;
+      padding: 15px 20px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      z-index: 10001;
+      animation: toastSlide .3s ease;
+      box-shadow: var(--shadow-lg);
+    }
+
+    @keyframes toastSlide {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .toast.success {
+      background: linear-gradient(135deg, var(--success), #69db7c);
+    }
+
+    .toast.error {
+      background: linear-gradient(135deg, var(--primary), #ff8a8a);
+    }
+
+    /* error */
+    .error-card {
+      background: #fff4f0;
+      border: 2px solid #ffd6cc;
+      border-radius: var(--radius);
+    }
+
+    .error-card h3 {
+      color: #d04444;
+      margin-bottom: 10px;
+    }
+
+    .error-card p {
+      color: #6b4b4b;
+      margin-bottom: 15px;
+    }
+
+    /* leaderboard */
+    .leaderboard-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .leaderboard-item:last-child {
+      border-bottom: none;
+    }
+
+    .leaderboard-rank {
+      font-weight: 900;
+      color: var(--primary);
+      min-width: 30px;
+    }
+
+    .leaderboard-avatar {
+      font-size: 1.5rem;
+    }
+
+    .leaderboard-info {
+      flex: 1;
+      margin-left: 12px;
+    }
+
+    .leaderboard-name {
+      font-weight: 800;
+      color: #2b2b2b;
+    }
+
+    .leaderboard-fullname {
+      opacity: .7;
+      font-size: .85rem;
+    }
+
+    .leaderboard-stars {
+      font-weight: 900;
+      color: var(--primary);
+      font-size: 1.1rem;
+    }
+
+    /* Audio button styles */
+    .audio-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1.2rem;
+      margin-left: 8px;
+      opacity: 0.7;
+      transition: all 0.2s ease;
+      padding: 4px;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .audio-btn:hover {
+      opacity: 1;
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .audio-btn.playing {
+      opacity: 1;
+      background: rgba(255, 209, 102, 0.2);
+      color: #ff6b6b;
+    }
+
+    /* Enhanced kid profile */
+    .kid-profile-content {
+      position: relative;
+    }
+
+    .audio-controls {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      gap: 5px;
+    }
+
+    .audio-controls .btn {
+      padding: 6px 10px;
+      font-size: 0.9rem;
+    }
+
+    /* Enhanced animations */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+
+    /* Responsive */
+    @media(max-width:1024px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      .stars-container {
+        width: 95%;
+      }
+      .wrap {
+        padding: 15px;
+      }
+    }
+
+    @media(max-width:768px) {
+      header h1 {
+        font-size: 2rem;
+      }
+      .kid-button {
+        padding: 10px 18px;
+        font-size: 1rem;
+      }
+      .rewards-grid {
+        grid-template-columns: 1fr;
+      }
+      .modal-backdrop {
+        padding: 10px;
+      }
+      .audio-btn {
+        font-size: 1rem;
+        margin-left: 5px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="nav-back">
+        <button class="btn ghost small" onclick="goHome()">🏠 Home</button>
+      </div>
+      <h1>🌟 Kids Stars Dashboard <button class="audio-btn" onclick="speakText('Kids Stars Dashboard. Collect stars, earn rewards, and have fun with your family!')">🔊</button></h1>
+      <p>Collect stars, earn rewards, and have fun with your family! 🎉</p>
+    </header>
+
+    <!-- kid selector -->
+    <div id="kidSelector" class="kid-selector" aria-label="Choose your character">
+      <!-- buttons injected by JS -->
+    </div>
+
+    <!-- loading & error -->
+    <div id="loading" class="loading" style="display:none">
+      <div class="spinner"></div>
+      <div style="color:white;font-weight:800;font-size:1.2rem">Loading your stars... ✨</div>
+    </div>
+
+    <div id="error" class="error-card" style="display:none">
+      <h3>😟 Oops! Couldn't Load Data</h3>
+      <p>We're having trouble loading your stars and rewards. Ask a parent to run "Setup Sheets & Data" from the
+        spreadsheet menu.</p>
+      <div style="text-align:right"><button class="btn primary small" onclick="loadData()">🔄 Try Again</button></div>
+    </div>
+
+    <!-- dashboard -->
+    <div id="dashboardWrap" style="display:none">
+      <div class="grid">
+        <!-- left column -->
+        <div>
+          <div class="card kid-profile" id="kidProfileCard" role="region" aria-live="polite">
+            <!-- injected -->
+          </div>
+
+          <div class="card progress-section" id="progressCard">
+            <!-- injected -->
+          </div>
+
+          <div class="card rewards-section" id="rewardsCard">
+            <!-- rewards injected -->
+          </div>
+
+          <div class="card suggestions" id="suggestionsCard">
+            <h3>💡 How to Earn More Stars <button class="audio-btn" onclick="speakText('How to Earn More Stars')">🔊</button></h3>
+            <div class="suggestion-item">
+              <div>Help with household chores</div>
+              <div class="badge">+5 stars</div>
+            </div>
+            <div class="suggestion-item">
+              <div>Complete homework early</div>
+              <div class="badge">+10 stars</div>
+            </div>
+            <div class="suggestion-item">
+              <div>Be kind to siblings</div>
+              <div class="badge">+8 stars</div>
+            </div>
+            <div class="suggestion-item">
+              <div>Read for 20 minutes</div>
+              <div class="badge">+7 stars</div>
+            </div>
+            <div class="suggestion-item">
+              <div>Try new foods</div>
+              <div class="badge">+6 stars</div>
+            </div>
+            <div style="margin-top:15px" class="motivation">
+              <em style="color:#666">Small actions every day add up to big rewards! 🌟</em>
+            </div>
+          </div>
+        </div>
+
+        <!-- right column -->
+        <aside class="right-col">
+          <div class="card info">
+            <div style="display:flex;align-items:center;gap:15px;margin-bottom:20px">
+              <div style="font-size:2.5rem" id="sideEmoji">👤</div>
+              <div>
+                <div id="sideName" style="font-weight:900;font-size:1.2rem"></div>
+                <div id="sideNick" style="opacity:.75;font-style:italic"></div>
+              </div>
+            </div>
+            <div>
+              <div style="font-weight:900;margin-bottom:10px;font-size:1.1rem">Your Stars Collection</div>
+              <div class="stars-container" style="margin-top:12px;width:100%;padding:20px">
+                <div style="display:flex;align-items:center;justify-content:center;flex-direction:column">
+                  <div class="stars-count" id="sideStars">0 ⭐</div>
+                  <div class="stars-label">Shiny Stars</div>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+              <button class="btn ghost small" onclick="showInfo()">❓ How it works</button>
+              <button class="btn primary small" onclick="openRedeemPanel()">🎁 Redeem Rewards</button>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:20px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+              <div style="font-weight:900;font-size:1.1rem">🏆 Family Leaderboard</div>
+              <div style="opacity:.7;font-size:.95rem">Friendly competition</div>
+            </div>
+            <div id="leaderboardList">
+              <!-- injected -->
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:20px;text-align:center">
+            <div style="font-weight:900;margin-bottom:10px;font-size:1.1rem">⭐ Daily Bonus</div>
+            <div style="color:#666;margin-bottom:15px;line-height:1.4">Come back every day for a special reward!</div>
+            <button class="btn success" onclick="claimDaily()" id="dailyBtn">Claim +5 Stars</button>
+            <div id="dailyMsg" style="margin-top:12px;color:#2b2b2b;font-weight:700;min-height:20px"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Root -->
+  <div id="modalRoot"></div>
+
+  <script>
+    // Configuration - UPDATE THIS WITH YOUR SCRIPT URL
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby3Ap-lUBB3QtaQzZovkPDtJppC-_s-ypcRxkZf81lBq6q-15XQIizImIFWY9RHOA8J/exec';
+    
+    // Enhanced Kids Dashboard with Audio Features
+    let allKids = [];
+    let allRewards = [];
+    let currentKid = null;
+    let lastDailyClaim = {};
+    let autoRefreshTimer = null;
+    let speechSynthesis = window.speechSynthesis;
+    let currentUtterance = null;
+
+    /* ---------- Navigation ---------- */
+    function goHome() {
+      window.location.href = '/index.html';
+    }
+
+    /* ---------- Google Apps Script API Wrapper ---------- */
+    async function callGoogleScript(functionName, data = {}) {
+      try {
+        const response = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            function: functionName,
+            data: data
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        return result;
+      } catch (error) {
+        console.error(`Error calling ${functionName}:`, error);
+        throw error;
+      }
+    }
+
+    /* ---------- DOM Helpers ---------- */
+    function $(id){ 
+      const element = document.getElementById(id);
+      if (!element) {
+        console.warn(`Element with id '${id}' not found`);
+      }
+      return element;
+    }
+    
+    function showLoading(){ 
+      $('loading').style.display = 'flex'; 
+      $('dashboardWrap').style.display = 'none'; 
+      $('error').style.display = 'none'; 
+    }
+    
+    function hideLoading(){ 
+      const loading = $('loading');
+      if (loading) loading.style.display = 'none'; 
+    }
+    
+    function showError(msg){ 
+      $('error').style.display = 'block'; 
+      $('dashboardWrap').style.display = 'none'; 
+      $('loading').style.display = 'none'; 
+      console.error(msg); 
+    }
+    
+    function showDashboard(){ 
+      $('dashboardWrap').style.display = 'block'; 
+      $('error').style.display = 'none'; 
+      $('loading').style.display = 'none'; 
+    }
+
+    /* ---------- Text-to-Speech Functionality ---------- */
+    function speakText(text, rate = 0.9, pitch = 1.1) {
+      // Stop any ongoing speech
+      if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+      }
+      
+      // Create and configure utterance
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = rate;
+      utterance.pitch = pitch;
+      utterance.volume = 0.8;
+      
+      // Try to use a child-friendly voice if available
+      const voices = speechSynthesis.getVoices();
+      const childVoice = voices.find(voice => 
+        voice.name.includes('Child') || 
+        voice.name.includes('Kids') ||
+        voice.name.includes('Google UK English Female') ||
+        voice.name.includes('Samantha')
+      );
+      
+      if (childVoice) {
+        utterance.voice = childVoice;
+      }
+      
+      // Speak the text
+      speechSynthesis.speak(utterance);
+      currentUtterance = utterance;
+      
+      return utterance;
+    }
+
+    function stopSpeech() {
+      if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+      }
+    }
+
+    /* ---------- Kid Selection ---------- */
+    function setKidSelector(kids){
+      const root = $('kidSelector');
+      if (!root) return;
+      
+      root.innerHTML = '';
+      kids.forEach(k => {
+        const btn = document.createElement('button');
+        btn.className = 'kid-button';
+        btn.dataset.kidId = k.kid_id;
+        btn.innerHTML = `<span class="emoji">${k.emoji || '👤'}</span><span class="label">${k.name.split(' ')[0]}</span>`;
+        btn.onclick = () => selectKid(k.kid_id);
+        root.appendChild(btn);
+      });
+    }
+
+    function updateKidButtonsActive(){
+      document.querySelectorAll('.kid-button').forEach(b => {
+        b.classList.toggle('active', b.dataset.kidId === (currentKid && currentKid.kid_id));
+      });
+    }
+
+    /* ---------- Data Loading ---------- */
+    async function loadData() {
+      try {
+        showLoading();
+        
+        const [kidsData, rewardsData] = await Promise.all([
+          callGoogleScript('getKidsAndBalancesForKids'),
+          callGoogleScript('getRewards')
+        ]);
+
+        allKids = kidsData || [];
+        allRewards = rewardsData || [];
+
+        if (!allKids || allKids.length === 0) {
+          showError('No kids found. Ask a parent to run "Setup Sheets & Data" from the spreadsheet menu.');
+          return;
+        }
+
+        setKidSelector(allKids);
+        if (!currentKid) currentKid = allKids[0];
+        else currentKid = allKids.find(k => k.kid_id === currentKid.kid_id) || allKids[0];
+
+        selectKid(currentKid.kid_id, { silent: true });
+        populateLeaderboard();
+        showDashboard();
+        
+        // Check daily claim status after data loads
+        setTimeout(() => {
+          checkDailyClaimStatus();
+        }, 500);
+        
+        scheduleAutoRefresh();
+      } catch(err) {
+        console.error('loadData error', err);
+        showError('Failed to load data: ' + (err.message || err));
+      }
+    }
+
+    /* ---------- Kid Selection and UI Rendering ---------- */
+    async function selectKid(kidId, opts = {}){
+      const kid = allKids.find(k => k.kid_id === kidId);
+      if (!kid) { showError('Kid data not found'); return; }
+      currentKid = kid;
+      updateKidButtonsActive();
+      renderKidProfile();
+      if (!opts.silent) {
+        playSelectSound();
+        // Speak the selected kid's name
+        speakText(`Hello ${kid.name.split(' ')[0]}, you have ${kid.balance} stars!`);
+      }
+    }
+
+    function renderKidProfile(){
+      if (!currentKid) return;
+      
+      // Main profile card
+      const profile = $('kidProfileCard');
+      if (!profile) return;
+      
+      profile.innerHTML = `
+        <div class="kid-profile-content">
+          <div class="audio-controls">
+            <button class="btn ghost small" onclick="stopSpeech()">⏹️ Stop</button>
+            <button class="btn ghost small" onclick="speakText('${currentKid.name} also known as ${currentKid.nickname || 'Super Star'} has ${currentKid.balance} stars. Your goal is ${currentKid.target_balance || 100} stars.')">🔊 Read All</button>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center">
+            <div class="emoji">${currentKid.emoji || '👤'}</div>
+            <div class="kid-name">${escapeHtml(currentKid.name)} <button class="audio-btn" onclick="speakText('${currentKid.name}')">🔊</button></div>
+            <div class="kid-nick">"${escapeHtml(currentKid.nickname || 'Super Star')}" <button class="audio-btn" onclick="speakText('also known as ${currentKid.nickname || 'Super Star'}')">🔊</button></div>
+
+            <div class="stars-container" style="margin-top:15px;width:280px">
+              <div class="stars-count">${currentKid.balance} ⭐ <button class="audio-btn" onclick="speakText('${currentKid.balance} stars')">🔊</button></div>
+              <div class="stars-label">My Stars Collection!</div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Side panel info - with null checks
+      const sideEmoji = $('sideEmoji');
+      const sideName = $('sideName');
+      const sideNick = $('sideNick');
+      const sideStars = $('sideStars');
+      
+      if (sideEmoji) sideEmoji.textContent = currentKid.emoji || '👤';
+      if (sideName) sideName.textContent = currentKid.name;
+      if (sideNick) sideNick.textContent = currentKid.nickname || '';
+      if (sideStars) sideStars.textContent = `${currentKid.balance} ⭐`;
+
+      // Progress section
+      const progressCard = $('progressCard');
+      if (progressCard) {
+        const target = Number(currentKid.target_balance || 100);
+        const bal = Number(currentKid.balance || 0);
+        const pct = target > 0 ? Math.round(Math.min((bal/target)*100,100)) : 0;
+        const pointsNeeded = Math.max(0, target - bal);
+        const progressText = pct>=100 ? 
+          `🎉 Goal Achieved! You have ${bal} stars!` : 
+          `You have ${bal} out of ${target} stars. You need ${pointsNeeded} more stars to reach your goal!`;
+
+        progressCard.innerHTML = `
+          <div class="progress-title">🎯 My Progress Goal <button class="audio-btn" onclick="speakText('My Progress Goal')">🔊</button></div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+          <div class="progress-text">${bal} / ${target} Stars ${pct>=100 ? '— 🎉 Goal Achieved!' : `(${pointsNeeded} more needed)`} <button class="audio-btn" onclick="speakText('${progressText}')">🔊</button></div>
+        `;
+      }
+
+      // Render rewards
+      renderRewardsForKid();
+      closeModal();
+    }
+
+    function renderRewardsForKid(){
+      const card = $('rewardsCard');
+      if (!card) return;
+      
+      const bal = Number(currentKid.balance || 0);
+      const affordable = allRewards.filter(r => Number(r.points_cost || 0) <= bal);
+      const near = allRewards.filter(r => Number(r.points_cost || 0) > bal && Number(r.points_cost || 0) <= bal + 30);
+      const others = allRewards.filter(r => Number(r.points_cost || 0) > bal + 30);
+
+      let html = '';
+      
+      if (affordable.length > 0){
+        html += `<div class="progress-title">🎁 Rewards You Can Get Now! <button class="audio-btn" onclick="speakText('Rewards You Can Get Now')">🔊</button></div><div class="rewards-grid">`;
+        affordable.forEach(r => html += rewardCardHtml(r, true));
+        html += `</div>`;
+      }
+
+      if (near.length > 0){
+        html += `<div style="margin-top:20px" class="progress-title">🎯 Almost There — Keep Going! <button class="audio-btn" onclick="speakText('Almost There — Keep Going')">🔊</button></div><div class="rewards-grid">`;
+        near.forEach(r => html += rewardCardHtml(r, false));
+        html += `</div>`;
+      }
+
+      if (others.length > 0){
+        html += `<div style="margin-top:20px" class="progress-title">🛍 Explore More Rewards <button class="audio-btn" onclick="speakText('Explore More Rewards')">🔊</button></div><div class="rewards-grid">`;
+        others.forEach(r => html += rewardCardHtml(r, false));
+        html += `</div>`;
+      }
+
+      if (allRewards.length === 0) {
+        html = `<div style="text-align:center;padding:30px;color:#666">
+                  <div style="font-size:3rem;margin-bottom:15px">🎁</div>
+                  <div>No rewards set up yet.</div>
+                  <div style="margin-top:8px">Ask your parents to add rewards in the spreadsheet!</div>
+                </div>`;
+      }
+
+      card.innerHTML = html;
+      
+      // Add click listeners
+      document.querySelectorAll('.reward-card').forEach(el => {
+        el.addEventListener('click', () => onRewardClicked(el.dataset.rewardId));
+      });
+    }
+
+    function rewardCardHtml(reward, affordable){
+      const title = escapeHtml(reward.title || 'Reward');
+      const desc = escapeHtml(reward.description || '');
+      const cost = Number(reward.points_cost || 0);
+      const classes = `reward-card ${affordable ? 'affordable' : ''}`;
+      const status = affordable ? '<div class="reward-status status-available">✅ You can get this!</div>' : 
+                                `<div class="reward-status status-soon">${cost - currentKid.balance} more stars needed</div>`;
+      
+      return `<div class="${classes}" data-reward-id="${reward.reward_id}">
+                <div class="title">${title} <button class="audio-btn" onclick="speakText('${title}. ${desc}. Costs ${cost} stars.')">🔊</button></div>
+                <div class="desc">${desc}</div>
+                <div class="reward-cost">${cost} ⭐</div>
+                ${status}
+              </div>`;
+    }
+
+    /* ---------- Reward Redemption ---------- */
+    function onRewardClicked(rewardId){
+      const reward = allRewards.find(r => r.reward_id === rewardId);
+      if (!reward) return;
+      
+      const cost = Number(reward.points_cost || 0);
+      const balance = Number(currentKid.balance || 0);
+      
+      if (balance < cost){
+        showToast(`You need ${cost - balance} more stars for this reward! 💫`, 3000, 'error');
+        speakText(`You need ${cost - balance} more stars for this reward!`);
+        return;
+      }
+
+      showRedeemModal(reward);
+    }
+
+    function showRedeemModal(reward){
+      const cost = Number(reward.points_cost || 0);
+      const balance = Number(currentKid.balance || 0);
+      
+      showModal({
+        title: `Redeem "${reward.title}"`,
+        html: `<div style="text-align:center;padding:10px 0">
+                <div style="font-size:3rem;margin-bottom:15px">🎁</div>
+                <p>Spend <strong style="color:var(--primary)">${cost} ⭐</strong> to get:</p>
+                <p style="font-size:1.2rem;font-weight:700;margin:15px 0">${escapeHtml(reward.title)}</p>
+                <p style="color:#666">${escapeHtml(reward.description || '')}</p>
+                <div style="background:#f8f9fa;padding:12px;border-radius:var(--radius-sm);margin:15px 0">
+                  <div>Your balance: <strong>${balance} ⭐</strong></div>
+                  <div>After purchase: <strong>${balance - cost} ⭐</strong></div>
+                </div>
+              </div>`,
+        actions: [
+          {label:'Cancel', style:'ghost', onClick: closeModal},
+          {label:`Redeem for ${cost} ⭐`, style:'primary', onClick: () => doRedeem(reward)}
+        ]
+      });
+      
+      // Speak the redemption details
+      speakText(`Redeem ${reward.title}. This costs ${cost} stars. Your current balance is ${balance} stars. After purchase, you will have ${balance - cost} stars left.`);
+    }
+
+    async function doRedeem(reward){
+      setModalBusy(true);
+      
+      const payload = {
+        kid_id: currentKid.kid_id,
+        kid_name: currentKid.name,
+        reward_id: reward.reward_id,
+        reward_title: reward.title,
+        points_cost: Number(reward.points_cost || 0),
+        actor_id: 'kid_dashboard',
+        actor_name: 'Kid Request',
+        reason: `Redeemed via Kids Dashboard: ${reward.title}`
+      };
+
+      try {
+        const result = await callGoogleScript('redeemReward', payload);
+        
+        if (result && result.status === 'ok') {
+          showToast(`🎉 Success! You redeemed "${reward.title}"!`, 4000, 'success');
+          speakText(`Success! You redeemed ${reward.title}!`);
+          createConfetti();
+          closeModal();
+          // Reload data to reflect new balance
+          setTimeout(() => loadData(), 1000);
+        } else {
+          throw new Error(result?.message || 'Please try again');
+        }
+      } catch (error) {
+        showToast('Could not redeem: ' + error.message, 5000, 'error');
+        speakText('Could not redeem. Please try again.');
+      } finally {
+        setModalBusy(false);
+      }
+    }
+
+    /* ---------- Leaderboard ---------- */
+    function populateLeaderboard(){
+      const listEl = $('leaderboardList');
+      if (!listEl) return;
+      
+      const sorted = allKids.slice().sort((a,b) => b.balance - a.balance);
+      
+      listEl.innerHTML = '';
+      sorted.forEach((kid, index) => {
+        const item = document.createElement('div');
+        item.className = 'leaderboard-item';
+        item.innerHTML = `
+          <div class="flex">
+            <div class="leaderboard-rank">${index + 1}</div>
+            <div class="leaderboard-avatar">${kid.emoji || '👤'}</div>
+            <div class="leaderboard-info">
+              <div class="leaderboard-name">${kid.name.split(' ')[0]}</div>
+              <div class="leaderboard-fullname">${kid.name}</div>
+            </div>
+          </div>
+          <div class="leaderboard-stars">${kid.balance} ⭐</div>
+        `;
+        listEl.appendChild(item);
+      });
+    }
+
+    /* ---------- Daily Bonus ---------- */
+    async function claimDaily() {
+      if (!currentKid) return;
+      
+      const dailyBtn = $('dailyBtn');
+      const dailyMsg = $('dailyMsg');
+      
+      if (!dailyBtn || !dailyMsg) return;
+      
+      // Save original button state
+      const originalText = dailyBtn.innerHTML;
+      
+      // Set loading state
+      dailyBtn.innerHTML = '⏳ Claiming...';
+      dailyBtn.disabled = true;
+      dailyMsg.textContent = '';
+
+      const payload = {
+        kid_id: currentKid.kid_id,
+        kid_name: currentKid.name
+      };
+
+      try {
+        const result = await callGoogleScript('claimDailyBonus', payload);
+        
+        if (result && result.status === 'ok') {
+          dailyMsg.textContent = result.message || '+5 stars added to your balance! ✨';
+          dailyBtn.disabled = true; // Disable for today
+          dailyBtn.innerHTML = '✅ Claimed Today';
+          showToast(result.message || 'Daily bonus claimed! +5 stars 🎉', 3000, 'success');
+          speakText('Daily bonus claimed! Five stars added to your balance!');
+          createConfetti();
+          
+          // Refresh data to show updated balance
+          setTimeout(() => {
+            loadData();
+          }, 1500);
+          
+        } else if (result && result.alreadyClaimed) {
+          // Already claimed today
+          dailyMsg.textContent = result.message;
+          dailyBtn.disabled = true;
+          dailyBtn.innerHTML = '✅ Claimed Today';
+          showToast('Already claimed your daily bonus! Come back tomorrow! 🌟', 3000);
+          speakText('Already claimed your daily bonus! Come back tomorrow!');
+          
+        } else {
+          // Other error
+          dailyMsg.textContent = result?.message || 'Failed to claim bonus. Try again!';
+          showToast('Claim failed. Please try again!', 3000, 'error');
+          speakText('Claim failed. Please try again!');
+        }
+      } catch (error) {
+        console.error('Daily claim error:', error);
+        dailyMsg.textContent = 'Claim failed. Try again!';
+        showToast('Daily claim failed! Please try again.', 3000, 'error');
+        speakText('Daily claim failed! Please try again.');
+        // Reset button on failure
+        dailyBtn.innerHTML = originalText;
+        dailyBtn.disabled = false;
+      }
+    }
+
+    async function checkDailyClaimStatus() {
+      if (!currentKid) return;
+      
+      const dailyBtn = $('dailyBtn');
+      const dailyMsg = $('dailyMsg');
+      
+      if (!dailyBtn || !dailyMsg) return;
+      
+      try {
+        const result = await callGoogleScript('claimDailyBonus', { 
+          kid_id: currentKid.kid_id, 
+          kid_name: currentKid.name,
+          checkOnly: true 
+        });
+        
+        if (result && result.alreadyClaimed) {
+          dailyBtn.disabled = true;
+          dailyBtn.innerHTML = '✅ Claimed Today';
+          dailyMsg.textContent = result.message || 'Daily bonus already claimed!';
+        } else {
+          dailyBtn.disabled = false;
+          dailyBtn.innerHTML = 'Claim +5 Stars';
+          dailyMsg.textContent = '';
+        }
+      } catch (error) {
+        // If check fails, enable button anyway
+        dailyBtn.disabled = false;
+        dailyBtn.innerHTML = 'Claim +5 Stars';
+      }
+    }
+
+    /* ---------- UI Components ---------- */
+    function showModal(opts){
+      const root = $('modalRoot');
+      if (!root) return;
+      
+      root.innerHTML = `
+        <div class="modal-backdrop" id="modalBackdrop">
+          <div class="modal">
+            <h3>${opts.title || 'Confirm'} <button class="audio-btn" onclick="speakText('${opts.title || 'Confirm'}')">🔊</button></h3>
+            <div>${opts.html || ''}</div>
+            <div class="modal-actions">
+              ${opts.actions.map((a,i) => 
+                `<button id="modalBtn${i}" class="btn ${a.style === 'primary' ? 'primary' : 'ghost'}">${a.label}</button>`
+              ).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+
+      opts.actions.forEach((a, i) => {
+        const btn = $(`modalBtn${i}`);
+        if (btn) btn.onclick = a.onClick;
+      });
+    }
+
+    function closeModal(){ 
+      const root = $('modalRoot');
+      if (root) root.innerHTML = ''; 
+    }
+
+    function setModalBusy(isBusy){
+      const backdrop = document.getElementById('modalBackdrop');
+      if (!backdrop) return;
+      
+      const buttons = backdrop.querySelectorAll('button');
+      buttons.forEach(b => {
+        if (b) {
+          b.disabled = isBusy;
+          if (isBusy) {
+            b.innerHTML = b.innerHTML.replace(/(🎁|⭐)/, '⏳');
+          }
+        }
+      });
+    }
+
+    function showToast(message, duration = 3000, type = 'success'){
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.animation = 'toastSlide 0.3s ease reverse';
+        setTimeout(() => {
+          if (toast.parentNode) {
+            toast.remove();
+          }
+        }, 300);
+      }, duration);
+    }
+
+    function createConfetti(){
+      const colors = ['#FF6B6B', '#4ECDC4', '#FFD166', '#6A0572', '#118AB2', '#51cf66'];
+      for (let i = 0; i < 60; i++) {
+        setTimeout(() => {
+          const confetti = document.createElement('div');
+          confetti.className = 'confetti';
+          confetti.style.left = Math.random() * 100 + 'vw';
+          confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+          const size = 8 + Math.random() * 12;
+          confetti.style.width = size + 'px';
+          confetti.style.height = size + 'px';
+          confetti.style.top = '-20px';
+          document.body.appendChild(confetti);
+
+          confetti.animate([
+            { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
+            { transform: `translateY(${window.innerHeight + 100}px) rotate(${360 + Math.random() * 360}deg)`, opacity: 0 }
+          ], {
+            duration: 3000 + Math.random() * 2000,
+            easing: 'cubic-bezier(0.1,0.8,0.3,1)'
+          });
+
+          setTimeout(() => {
+            if (confetti.parentNode) {
+              confetti.remove();
+            }
+          }, 5000);
+        }, i * 50);
+      }
+    }
+
+    function playSelectSound(){
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+        
+        oscillator.connect(gain);
+        gain.connect(ctx.destination);
+        
+        oscillator.frequency.value = 784;
+        oscillator.type = 'sine';
+        
+        gain.gain.setValueAtTime(0, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+        
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + 0.2);
+      } catch(e) {
+        // Silent fail - audio not critical
+      }
+    }
+
+    function escapeHtml(text){
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Auto-refresh
+    function scheduleAutoRefresh(){
+      if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+      autoRefreshTimer = setInterval(() => {
+        loadData();
+      }, 45000);
+    }
+
+    /* ---------- Public API ---------- */
+    window.loadData = loadData;
+    window.selectKid = selectKid;
+    window.speakText = speakText;
+    window.stopSpeech = stopSpeech;
+    window.showInfo = () => showModal({
+      title: 'How Stars Work 🌟',
+      html: `<p>Earn stars by helping around the house, being kind, and completing tasks!</p>
+             <p>Use your stars to redeem awesome rewards. Parents will approve your requests.</p>
+             <p>Come back daily for bonus stars!</p>`,
+      actions: [{label: 'Got it!', style: 'primary', onClick: closeModal}]
+    });
+
+    window.openRedeemPanel = () => {
+      const affordable = allRewards.filter(r => Number(r.points_cost || 0) <= Number(currentKid.balance || 0));
+      if (affordable.length === 0) {
+        showToast('You need more stars to redeem rewards! 💫', 3000);
+        speakText('You need more stars to redeem rewards!');
+        return;
+      }
+      showModal({
+        title: 'Your Available Rewards',
+        html: `<p>You have <strong>${currentKid.balance} ⭐</strong> available!</p>
+               <p>Tap any reward on the main page to redeem it.</p>`,
+        actions: [{label: 'Browse Rewards', style: 'primary', onClick: closeModal}]
+      });
+      speakText(`You have ${currentKid.balance} stars available! Tap any reward on the main page to redeem it.`);
+    };
+
+    window.claimDaily = claimDaily;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', loadData);
+    
+    // Load voices when they become available
+    speechSynthesis.onvoiceschanged = function() {
+      console.log('Voices loaded:', speechSynthesis.getVoices().length);
+    };
+  </script>
+</body>
+</html>
