@@ -667,23 +667,23 @@
         }
 
         async authenticate(userId, pin) {
-            return this.postRequest('checkUserPin', { userId, pin });
+            return this.jsonpRequest('checkUserPin', { userId, pin });
         }
 
         async awardPoints(data) {
-            return this.postRequest('awardPoints', data);
+            return this.jsonpRequest('awardPoints', data);
         }
 
         async deductPoints(data) {
-            return this.postRequest('deductPoints', data);
+            return this.jsonpRequest('deductPoints', data);
         }
 
         async redeemReward(data) {
-            return this.postRequest('redeemReward', data);
+            return this.jsonpRequest('redeemReward', data);
         }
 
         async claimDailyBonus(data) {
-            return this.postRequest('claimDailyBonus', data);
+            return this.jsonpRequest('claimDailyBonus', data);
         }
 
         async exportData(sheetName) {
