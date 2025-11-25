@@ -895,67 +895,111 @@
 
     /* ---------- CORS-FRIENDLY API CLIENT ---------- */
     class KidsPointsAPI {
-        constructor(baseUrl) {
-            this.baseUrl = baseUrl;
-        }
+    constructor(baseUrl) {
+        this.baseUrl = baseUrl;
+    }
 
-        // JSONP for GET requests (CORS-friendly)
-        jsonpRequest(functionName, data = {}) {
-            return new Promise((resolve, reject) => {
-                const callbackName = `jsonp_callback_${Date.now()}_${Math.random().toString(36).substr(2)}`;
+    // Enhanced JSONP request with debugging
+    jsonpRequest(functionName, data = {}) {
+        return new Promise((resolve, reject) => {
+            const callbackName = `jsonp_callback_${Date.now()}_${Math.random().toString(36).substr(2)}`;
+            
+            console.log(`JSONP Request: ${functionName}`, data);
+            
+            // Clean up any existing callbacks
+            if (window[callbackName]) {
+                delete window[callbackName];
+            }
+            
+            const script = document.createElement('script');
+            // Use encodeURIComponent for proper URL encoding
+            const encodedData = encodeURIComponent(JSON.stringify(data));
+            const url = `${this.baseUrl}?callback=${callbackName}&function=${functionName}&data=${encodedData}`;
+            
+            console.log('JSONP URL:', url);
+            
+            script.src = url;
+            
+            window[callbackName] = (response) => {
+                console.log(`JSONP Response for ${functionName}:`, response);
                 
-                const script = document.createElement('script');
-                const url = `${this.baseUrl}?callback=${callbackName}&function=${functionName}&data=${encodeURIComponent(JSON.stringify(data))}`;
+                // Clean up
+                delete window[callbackName];
+                if (script.parentNode) {
+                    script.parentNode.removeChild(script);
+                }
                 
-                script.src = url;
-                
-                window[callbackName] = (response) => {
+                // Handle response - check for various success patterns
+                if (response && (response.status === 'error' || response.success === false)) {
+                    reject(new Error(response.message || response.error || 'API error'));
+                } else if (response && response.data !== undefined) {
+                    resolve(response.data); // Return data from {success: true, data: [...]}
+                } else {
+                    resolve(response); // Return raw response
+                }
+            };
+            
+            script.onerror = (error) => {
+                console.error(`JSONP Error for ${functionName}:`, error);
+                delete window[callbackName];
+                if (script.parentNode) {
+                    script.parentNode.removeChild(script);
+                }
+                reject(new Error(`JSONP request failed for ${functionName}`));
+            };
+            
+            // Add to document
+            document.head.appendChild(script);
+            
+            // Timeout
+            setTimeout(() => {
+                if (window[callbackName]) {
+                    console.error(`JSONP Timeout for ${functionName}`);
                     delete window[callbackName];
-                    document.body.removeChild(script);
-                    resolve(response);
-                };
-                
-                script.onerror = () => {
-                    delete window[callbackName];
-                    document.body.removeChild(script);
-                    reject(new Error('JSONP request failed'));
-                };
-                
-                document.body.appendChild(script);
-                
-                setTimeout(() => {
-                    if (window[callbackName]) {
-                        delete window[callbackName];
-                        document.body.removeChild(script);
-                        reject(new Error('JSONP request timeout'));
+                    if (script.parentNode) {
+                        script.parentNode.removeChild(script);
                     }
-                }, 10000);
-            });
-        }
+                    reject(new Error(`JSONP request timeout for ${functionName}`));
+                }
+            }, 15000);
+        });
+    }
 
-        // POST requests using JSONP as fallback
-        async postRequest(functionName, data = {}) {
-            // For kids dashboard, use JSONP for everything to avoid CORS
-            return this.jsonpRequest(functionName, data);
-        }
-
-        // Public API methods - all using JSONP
-        async getKids() {
-            return this.jsonpRequest('getKidsAndBalancesForKids');
-        }
-
-        async getRewards() {
-            return this.jsonpRequest('getRewards');
-        }
-
-        async redeemReward(data) {
-            return this.jsonpRequest('redeemReward', data);
-        }
-
-        async claimDailyBonus(data) {
-            return this.jsonpRequest('claimDailyBonus', data);
+    // Public API methods with exact function names
+    async getKids() {
+        try {
+            const result = await this.jsonpRequest('getKidsAndBalancesForKids');
+            return result || [];
+        } catch (error) {
+            console.error('getKids error:', error);
+            // Fallback: try the simpler function name
+            try {
+                const result = await this.jsonpRequest('getKidsAndBalances');
+                return result || [];
+            } catch (fallbackError) {
+                throw error; // Throw original error
+            }
         }
     }
+
+    async getRewards() {
+        try {
+            const result = await this.jsonpRequest('getRewards');
+            return result || [];
+        } catch (error) {
+            console.error('getRewards error:', error);
+            throw error;
+        }
+    }
+
+    async redeemReward(data) {
+        return this.jsonpRequest('redeemReward', data);
+    }
+
+    async claimDailyBonus(data) {
+        return this.jsonpRequest('claimDailyBonus', data);
+    }
+}
 
     // Initialize API client
     const api = new KidsPointsAPI(SCRIPT_URL);
