@@ -1,1 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kids Learning Games - Star Points Reward System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4a6bff;
+            --secondary: #ff6b6b;
+            --accent: #6bff8d;
+            --light: #f5f7ff;
+            --dark: #333366;
+            --text: #333;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
+            --radius: 16px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Comic Neue', cursive, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #e0f7ff 0%, #f9e6ff 100%);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+        }
+        
+        h1 {
+            color: var(--primary);
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--dark);
+            margin-bottom: 20px;
+        }
+        
+        .stars {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .star {
+            color: gold;
+            font-size: 1.8rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            animation: twinkle 3s infinite alternate;
+        }
+        
+        @keyframes twinkle {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(1.2); opacity: 1; }
+        }
+        
+        .star:nth-child(2) { animation-delay: 0.5s; }
+        .star:nth-child(3) { animation-delay: 1s; }
+        .star:nth-child(4) { animation-delay: 1.5s; }
+        .star:nth-child(5) { animation-delay: 2s; }
+        
+        .filters {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .filter-label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+        
+        select {
+            padding: 10px 15px;
+            border-radius: 50px;
+            border: 2px solid var(--primary);
+            background: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 150px;
+        }
+        
+        select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.3);
+        }
+        
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .game-card {
+            background: white;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+        }
+        
+        .game-image {
+            height: 160px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-image::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255,255,255,0.2), transparent);
+        }
+        
+        .game-info {
+            padding: 20px;
+        }
+        
+        .game-title {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .game-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .game-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #ddd;
+        }
+        
+        .age-badge, .points-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+        }
+        
+        .age-badge {
+            background: #e6f7ff;
+            color: var(--primary);
+        }
+        
+        .points-badge {
+            background: #fff9e6;
+            color: #e6a700;
+        }
+        
+        .points-value {
+            color: #e6a700;
+            font-weight: bold;
+        }
+        
+        .play-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 15px;
+            text-align: center;
+            text-decoration: none;
+        }
+        
+        .play-button:hover {
+            background: var(--secondary);
+        }
+        
+        .points-display {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 100;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .points-display i {
+            color: gold;
+            font-size: 1.5rem;
+        }
+        
+        .kid-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+        
+        .kid-avatar {
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+        }
+        
+        .kid-info h2 {
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .kid-balance {
+            font-size: 1.2rem;
+            color: var(--dark);
+            font-weight: bold;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 5px;
+            transition: width 0.5s;
+        }
+        
+        .daily-bonus {
+            background: linear-gradient(135deg, #ffd166, #ff9e6d);
+            color: white;
+            padding: 15px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .daily-bonus:hover {
+            transform: scale(1.02);
+        }
+        
+        .bonus-title {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .bonus-title i {
+            color: gold;
+        }
+        
+        @media (max-width: 768px) {
+            .games-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .filter-group {
+                width: 100%;
+            }
+            
+            select {
+                width: 100%;
+            }
+        }
+        
+        .game-completed {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--accent);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            z-index: 10;
+        }
+        
+        .level-indicator {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+        }
+        
+        .reward-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 15px 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            animation: slideDown 0.5s, fadeOut 0.5s 2.5s forwards;
+        }
+        
+        @keyframes slideDown {
+            from { top: -100px; }
+            to { top: 20px; }
+        }
+        
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Kids Learning Games</h1>
+            <div class="subtitle">Play, Learn & Earn Stars! ✨</div>
+            <div class="stars">
+                <div class="star">★</div>
+                <div class="star">★</div>
+                <div class="star">★</div>
+                <div class="star">★</div>
+                <div class="star">★</div>
+            </div>
+        </header>
+        
+        <div class="kid-profile">
+            <div class="kid-avatar">👧</div>
+            <div class="kid-info">
+                <h2>Emma Johnson</h2>
+                <div class="kid-balance">⭐ 245 Stars</div>
+                <div class="progress-bar">
+                    <div class="progress" style="width: 65%"></div>
+                </div>
+                <div>Target: 375 Stars</div>
+            </div>
+        </div>
+        
+        <div class="daily-bonus" id="dailyBonus">
+            <div class="bonus-title">
+                <i class="fas fa-gift"></i>
+                Daily Login Bonus Available!
+            </div>
+            <p>Click here to claim 5 free stars! ✨</p>
+        </div>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <div class="filter-label">Filter by Age:</div>
+                <select id="ageFilter">
+                    <option value="all">All Ages</option>
+                    <option value="3-5">3-5 Years</option>
+                    <option value="6-8">6-8 Years</option>
+                    <option value="9-12">9-12 Years</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <div class="filter-label">Filter by Subject:</div>
+                <select id="subjectFilter">
+                    <option value="all">All Subjects</option>
+                    <option value="math">Mathematics</option>
+                    <option value="reading">Reading</option>
+                    <option value="science">Science</option>
+                    <option value="art">Art & Creativity</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <div class="filter-label">Filter by Difficulty:</div>
+                <select id="difficultyFilter">
+                    <option value="all">All Levels</option>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="games-grid" id="gamesGrid">
+            <!-- Games will be dynamically loaded here -->
+        </div>
+        
+        <div class="points-display">
+            <i class="fas fa-star"></i>
+            <span>245 Stars</span>
+        </div>
+    </div>
 
+    <script>
+        // Sample game data - in a real app, this would come from your backend
+        const gamesData = [
+            {
+                id: 1,
+                title: "Counting Adventure",
+                description: "Learn to count with fun animals and objects",
+                ageRange: "3-5",
+                subject: "math",
+                difficulty: "beginner",
+                icon: "🔢",
+                points: 10,
+                completed: true,
+                levels: 5
+            },
+            {
+                id: 2,
+                title: "Alphabet Safari",
+                description: "Explore letters and sounds with jungle friends",
+                ageRange: "3-5",
+                subject: "reading",
+                difficulty: "beginner",
+                icon: "🦁",
+                points: 15,
+                completed: false,
+                levels: 8
+            },
+            {
+                id: 3,
+                title: "Math Puzzles",
+                description: "Solve addition and subtraction puzzles",
+                ageRange: "6-8",
+                subject: "math",
+                difficulty: "intermediate",
+                icon: "🧩",
+                points: 20,
+                completed: true,
+                levels: 10
+            },
+            {
+                id: 4,
+                title: "Science Explorer",
+                description: "Discover amazing facts about plants and animals",
+                ageRange: "6-8",
+                subject: "science",
+                difficulty: "intermediate",
+                icon: "🔬",
+                points: 25,
+                completed: false,
+                levels: 12
+            },
+            {
+                id: 5,
+                title: "Reading Champion",
+                description: "Improve reading skills with fun stories",
+                ageRange: "9-12",
+                subject: "reading",
+                difficulty: "advanced",
+                icon: "📚",
+                points: 30,
+                completed: false,
+                levels: 15
+            },
+            {
+                id: 6,
+                title: "Art Studio",
+                description: "Create amazing digital artwork",
+                ageRange: "6-8",
+                subject: "art",
+                difficulty: "intermediate",
+                icon: "🎨",
+                points: 20,
+                completed: false,
+                levels: 8
+            },
+            {
+                id: 7,
+                title: "Word Builder",
+                description: "Create words from letter tiles",
+                ageRange: "6-8",
+                subject: "reading",
+                difficulty: "intermediate",
+                icon: "🔤",
+                points: 18,
+                completed: true,
+                levels: 10
+            },
+            {
+                id: 8,
+                title: "Geometry Quest",
+                description: "Learn shapes and patterns through adventure",
+                ageRange: "9-12",
+                subject: "math",
+                difficulty: "advanced",
+                icon: "🔺",
+                points: 35,
+                completed: false,
+                levels: 12
+            }
+        ];
+
+        // Function to render games based on filters
+        function renderGames(filters = {}) {
+            const gamesGrid = document.getElementById('gamesGrid');
+            gamesGrid.innerHTML = '';
+            
+            let filteredGames = gamesData;
+            
+            // Apply filters
+            if (filters.age && filters.age !== 'all') {
+                filteredGames = filteredGames.filter(game => game.ageRange === filters.age);
+            }
+            
+            if (filters.subject && filters.subject !== 'all') {
+                filteredGames = filteredGames.filter(game => game.subject === filters.subject);
+            }
+            
+            if (filters.difficulty && filters.difficulty !== 'all') {
+                filteredGames = filteredGames.filter(game => game.difficulty === filters.difficulty);
+            }
+            
+            // Render games
+            filteredGames.forEach(game => {
+                const gameCard = document.createElement('div');
+                gameCard.className = 'game-card';
+                
+                gameCard.innerHTML = `
+                    <div class="game-image">
+                        ${game.icon}
+                        ${game.completed ? '<div class="game-completed">Completed!</div>' : ''}
+                        <div class="level-indicator">${game.levels} Levels</div>
+                    </div>
+                    <div class="game-info">
+                        <h3 class="game-title">${game.title}</h3>
+                        <p class="game-description">${game.description}</p>
+                        <div class="game-meta">
+                            <div class="age-badge">
+                                <i class="fas fa-child"></i>
+                                <span>${game.ageRange} yrs</span>
+                            </div>
+                            <div class="points-badge">
+                                <i class="fas fa-star"></i>
+                                <span class="points-value">${game.points}</span>
+                            </div>
+                        </div>
+                        <a href="#" class="play-button" data-game-id="${game.id}">
+                            ${game.completed ? 'Play Again' : 'Play Now'}
+                        </a>
+                    </div>
+                `;
+                
+                gamesGrid.appendChild(gameCard);
+            });
+            
+            // Add event listeners to play buttons
+            document.querySelectorAll('.play-button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const gameId = this.getAttribute('data-game-id');
+                    startGame(gameId);
+                });
+            });
+        }
+        
+        // Function to handle starting a game
+        function startGame(gameId) {
+            const game = gamesData.find(g => g.id == gameId);
+            if (game) {
+                // In a real app, this would redirect to the actual game
+                showNotification(`Starting ${game.title}! Good luck! 🎮`);
+                
+                // Simulate game completion after 3 seconds
+                setTimeout(() => {
+                    if (!game.completed) {
+                        showNotification(`Congratulations! You earned ${game.points} stars! ⭐`);
+                        game.completed = true;
+                        renderGames(getCurrentFilters());
+                    }
+                }, 3000);
+            }
+        }
+        
+        // Function to show notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'reward-notification';
+            notification.innerHTML = `
+                <i class="fas fa-bell"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Remove notification after animation
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // Function to get current filter values
+        function getCurrentFilters() {
+            return {
+                age: document.getElementById('ageFilter').value,
+                subject: document.getElementById('subjectFilter').value,
+                difficulty: document.getElementById('difficultyFilter').value
+            };
+        }
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Render all games initially
+            renderGames();
+            
+            // Add event listeners to filters
+            document.getElementById('ageFilter').addEventListener('change', function() {
+                renderGames(getCurrentFilters());
+            });
+            
+            document.getElementById('subjectFilter').addEventListener('change', function() {
+                renderGames(getCurrentFilters());
+            });
+            
+            document.getElementById('difficultyFilter').addEventListener('change', function() {
+                renderGames(getCurrentFilters());
+            });
+            
+            // Add event listener to daily bonus
+            document.getElementById('dailyBonus').addEventListener('click', function() {
+                showNotification('Daily bonus claimed! +5 stars added to your balance! ✨');
+                this.style.opacity = '0.5';
+                this.style.pointerEvents = 'none';
+                this.innerHTML = `
+                    <div class="bonus-title">
+                        <i class="fas fa-check-circle"></i>
+                        Bonus Claimed Today!
+                    </div>
+                    <p>Come back tomorrow for more stars! 🌟</p>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>
