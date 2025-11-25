@@ -232,155 +232,265 @@
     </div>
   </div>
 
-  <script>
-    // No need for SCRIPT_URL - using google.script.run for CORS-free communication
+ <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxr7Ac9DA7YrT7MWOY90Grc_inpHeoxSufh2-NPRLkA9rUqtDntQJ_oNChPbNSGiBYJ/exec';
+    
     let kids = [];
     let rewards = [];
     let users = [];
     let currentUser = null;
 
-    /* ---------- Navigation ---------- */
-    function goHome() {
-      // Will work when deployed as web app
-      window.location.href = window.location.origin;
+    /* ---------- CORS-FRIENDLY API CLIENT ---------- */
+    class PointsSystemAPI {
+        constructor(baseUrl) {
+            this.baseUrl = baseUrl;
+            this.requestId = 0;
+        }
+
+        // Method 1: JSONP for GET requests (CORS-friendly)
+        jsonpRequest(functionName, data = {}) {
+            return new Promise((resolve, reject) => {
+                const callbackName = `jsonp_callback_${Date.now()}_${Math.random().toString(36).substr(2)}`;
+                
+                // Create script tag
+                const script = document.createElement('script');
+                const url = `${this.baseUrl}?callback=${callbackName}&function=${functionName}&data=${encodeURIComponent(JSON.stringify(data))}`;
+                
+                script.src = url;
+                
+                // Define callback
+                window[callbackName] = (response) => {
+                    delete window[callbackName];
+                    document.body.removeChild(script);
+                    resolve(response);
+                };
+                
+                // Error handling
+                script.onerror = () => {
+                    delete window[callbackName];
+                    document.body.removeChild(script);
+                    reject(new Error('JSONP request failed'));
+                };
+                
+                document.body.appendChild(script);
+                
+                // Timeout after 10 seconds
+                setTimeout(() => {
+                    if (window[callbackName]) {
+                        delete window[callbackName];
+                        document.body.removeChild(script);
+                        reject(new Error('JSONP request timeout'));
+                    }
+                }, 10000);
+            });
+        }
+
+        // Method 2: Simple GET with CORS proxy if needed
+        async simpleGetRequest(endpoint, params = {}) {
+            const queryString = new URLSearchParams(params).toString();
+            const url = `${this.baseUrl}/${endpoint}${queryString ? '?' + queryString : ''}`;
+            
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.warn(`Direct request failed for ${endpoint}, trying JSONP:`, error);
+                // Fall back to JSONP
+                return this.jsonpRequest(endpoint.replace('/', ''), params);
+            }
+        }
+
+        // Method 3: POST requests using Google Apps Script's doPost
+        async postRequest(endpoint, data = {}) {
+            const url = this.baseUrl;
+            const payload = {
+                function: endpoint.replace('/', ''),
+                data: data
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.warn(`POST request failed for ${endpoint}:`, error);
+                throw error;
+            }
+        }
+
+        // Public API methods
+        async getKids() {
+            return this.jsonpRequest('getKidsAndBalances');
+        }
+
+        async getRewards() {
+            return this.jsonpRequest('getRewards');
+        }
+
+        async getUsers() {
+            return this.jsonpRequest('getUsers');
+        }
+
+        async getSystemStats() {
+            return this.jsonpRequest('getSystemStats');
+        }
+
+        async getActivity(period = 'weekly') {
+            return this.jsonpRequest('getPeriodStats', { period });
+        }
+
+        async authenticate(userId, pin) {
+            return this.postRequest('checkUserPin', { userId, pin });
+        }
+
+        async awardPoints(data) {
+            return this.postRequest('awardPoints', data);
+        }
+
+        async deductPoints(data) {
+            return this.postRequest('deductPoints', data);
+        }
+
+        async redeemReward(data) {
+            return this.postRequest('redeemReward', data);
+        }
+
+        async claimDailyBonus(data) {
+            return this.postRequest('claimDailyBonus', data);
+        }
     }
 
-    /* ---------- Google Apps Script HTML Service Wrapper ---------- */
-    function callGoogleScript(functionName, data = {}) {
-      return new Promise((resolve, reject) => {
-        try {
-          google.script.run
-            .withSuccessHandler(resolve)
-            .withFailureHandler(reject)
-            [functionName](data);
-        } catch (error) {
-          reject(error);
-        }
-      });
+    // Initialize API client
+    const api = new PointsSystemAPI(SCRIPT_URL);
+
+    /* ---------- Navigation ---------- */
+    function goHome() {
+        window.location.href = '/KLD';
     }
 
     /* ---------- Helpers ---------- */
     function showAlert(elementId, message, type = 'error', duration = 4500) {
-      const el = document.getElementById(elementId);
-      if (!el) return;
-      el.textContent = message;
-      el.className = `alert alert-${type}`;
-      el.classList.remove('hidden');
-      setTimeout(() => el.classList.add('hidden'), duration);
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        el.textContent = message;
+        el.className = `alert alert-${type}`;
+        el.classList.remove('hidden');
+        setTimeout(() => el.classList.add('hidden'), duration);
     }
 
     function setLoading(flag, buttonId = null) {
-      if (buttonId) {
-        const btn = document.getElementById(buttonId);
-        if (!btn) return;
-        btn.disabled = flag;
-        if (flag) {
-          btn.innerHTML = `<span class="loading-spinner"></span> Loading...`;
-        } else {
-          btn.innerHTML = btn.getAttribute('data-original-text') || btn.innerHTML;
+        if (buttonId) {
+            const btn = document.getElementById(buttonId);
+            if (!btn) return;
+            btn.disabled = flag;
+            if (flag) {
+                btn.innerHTML = `<span class="loading-spinner"></span> Loading...`;
+            } else {
+                btn.innerHTML = btn.getAttribute('data-original-text') || btn.innerHTML;
+            }
+            return;
         }
-        return;
-      }
-      
-      const ids = ['submitPointsBtn', 'submitRedeemBtn', 'loginBtn'];
-      ids.forEach(id => {
-        const b = document.getElementById(id);
-        if (b) {
-          b.disabled = flag;
-          b.classList.toggle('loading', flag);
-          if (flag) b.style.opacity = '0.8';
-          else b.style.opacity = '1';
-        }
-      });
+        
+        const ids = ['submitPointsBtn', 'submitRedeemBtn', 'loginBtn'];
+        ids.forEach(id => {
+            const b = document.getElementById(id);
+            if (b) {
+                b.disabled = flag;
+                b.classList.toggle('loading', flag);
+                if (flag) b.style.opacity = '0.8';
+                else b.style.opacity = '1';
+            }
+        });
     }
 
     /* ---------- Login ---------- */
     async function login() {
-      const userId = document.getElementById('loginUserId').value;
-      const pin = document.getElementById('loginPin').value?.trim();
-      const loginError = document.getElementById('loginError');
-      loginError.classList.add('hidden');
+        const userId = document.getElementById('loginUserId').value;
+        const pin = document.getElementById('loginPin').value?.trim();
+        const loginError = document.getElementById('loginError');
+        loginError.classList.add('hidden');
 
-      if (!userId || !pin) {
-        showAlert('loginError', 'Please select user and enter PIN', 'error', 5000);
-        return;
-      }
-
-      setLoading(true, 'loginBtn');
-
-      try {
-        const selectedUser = users.find(u => u.user_id === userId);
-        if (!selectedUser) {
-          throw new Error('Selected user not found');
+        if (!userId || !pin) {
+            showAlert('loginError', 'Please select user and enter PIN', 'error', 5000);
+            return;
         }
 
-        const result = await callGoogleScript('serverCheckUserPin', { userId, pin });
-        
-        if (result && (result.ok || result.success)) {
-          currentUser = {
-            ...selectedUser,
-            name: selectedUser.name || result.name || selectedUser.user_id,
-            role: selectedUser.role || 'Parent'
-          };
-          
-          document.getElementById('loginSection').classList.add('hidden');
-          document.getElementById('dashboard').classList.remove('hidden');
-          document.getElementById('currentUserName').textContent = currentUser.name;
-          document.getElementById('currentUserRole').textContent = currentUser.role || 'Parent';
-          document.getElementById('loginPin').value = '';
-          refresh();
-        } else {
-          throw new Error(result?.message || 'Invalid PIN');
+        setLoading(true, 'loginBtn');
+
+        try {
+            const selectedUser = users.find(u => u.user_id === userId);
+            if (!selectedUser) {
+                throw new Error('Selected user not found');
+            }
+
+            const result = await api.authenticate(userId, pin);
+            
+            if (result && (result.success || result.status === 'success')) {
+                currentUser = {
+                    ...selectedUser,
+                    name: selectedUser.name || result.name || selectedUser.user_id,
+                    role: selectedUser.role || 'Parent'
+                };
+                
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                document.getElementById('currentUserName').textContent = currentUser.name;
+                document.getElementById('currentUserRole').textContent = currentUser.role || 'Parent';
+                document.getElementById('loginPin').value = '';
+                refresh();
+            } else {
+                throw new Error(result?.message || 'Invalid PIN');
+            }
+        } catch (error) {
+            showAlert('loginError', 'Login failed: ' + error.message, 'error', 5000);
+        } finally {
+            setLoading(false, 'loginBtn');
         }
-      } catch (error) {
-        showAlert('loginError', 'Login failed: ' + error.message, 'error', 5000);
-      } finally {
-        setLoading(false, 'loginBtn');
-      }
     }
 
     function logout() {
-      currentUser = null;
-      document.getElementById('loginSection').classList.remove('hidden');
-      document.getElementById('dashboard').classList.add('hidden');
-      document.getElementById('loginPin').value = '';
+        currentUser = null;
+        document.getElementById('loginSection').classList.remove('hidden');
+        document.getElementById('dashboard').classList.add('hidden');
+        document.getElementById('loginPin').value = '';
     }
 
     /* ---------- Data Loading ---------- */
     async function refresh() {
-      setLoading(true);
-      
-      try {
-        const [kidsData, rewardsData, statsData] = await Promise.all([
-          callGoogleScript('serverGetKidsAndBalances'),
-          callGoogleScript('serverGetRewards'),
-          callGoogleScript('serverGetSystemStats')
-        ]);
-
-        kids = kidsData || [];
-        rewards = rewardsData || [];
-
-        renderKids();
-        populateKidDropdowns();
-        renderRewards();
-        populateRewardDropdown();
-        updateSystemStats(statsData);
+        setLoading(true);
         
-        // Load recent activity
         try {
-          const activityData = await callGoogleScript('serverGetPeriodStats', { period: 'weekly' });
-          displayRecentActivity(activityData);
-        } catch (error) {
-          console.warn('Could not load activity data:', error);
-        }
-      } catch (error) {
-        console.error('Refresh error:', error);
-        showAlert('toolsMessage', 'Failed to load data: ' + error.message, 'error');
-      } finally {
-        setLoading(false);
-      }
-    }
+            const [kidsResult, rewardsResult, statsResult, activityResult] = await Promise.all([
+                api.getKids(),
+                api.getRewards(),
+                api.getSystemStats(),
+                api.getActivity('weekly')
+            ]);
 
+            kids = kidsResult || [];
+            rewards = rewardsResult || [];
+
+            renderKids();
+            populateKidDropdowns();
+            renderRewards();
+            populateRewardDropdown();
+            updateSystemStats(statsResult || {});
+            displayRecentActivity(activityResult || {});
+        } catch (error) {
+            console.error('Refresh error:', error);
+            showAlert('toolsMessage', 'Failed to load data: ' + error.message, 'error');
+        } finally {
+            setLoading(false);
+        }
+    }
     function renderKids() {
       const container = document.getElementById('balances');
       const totalKidsEl = document.getElementById('totalKids');
