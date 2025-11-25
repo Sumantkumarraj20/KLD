@@ -1381,99 +1381,122 @@
     }
 
     /* ---------- Daily Bonus ---------- */
-    async function claimDaily() {
-      if (!currentKid) return;
-      
-      const dailyBtn = $('dailyBtn');
-      const dailyMsg = $('dailyMsg');
-      
-      if (!dailyBtn || !dailyMsg) return;
-      
-      // Save original button state
-      const originalText = dailyBtn.innerHTML;
-      
-      // Set loading state
-      dailyBtn.innerHTML = '⏳ Claiming...';
+    /* ---------- Daily Bonus ---------- */
+async function claimDaily() {
+  if (!currentKid) return;
+  
+  const dailyBtn = $('dailyBtn');
+  const dailyMsg = $('dailyMsg');
+  
+  if (!dailyBtn || !dailyMsg) return;
+  
+  // Save original button state
+  const originalText = dailyBtn.innerHTML;
+  
+  // Set loading state
+  dailyBtn.innerHTML = '⏳ Claiming...';
+  dailyBtn.disabled = true;
+  dailyMsg.textContent = '';
+
+  const payload = {
+    kid_id: currentKid.kid_id,
+    kid_name: currentKid.name
+  };
+
+  try {
+    const result = await api.claimDailyBonus(payload);
+    
+    // Handle success case
+    if (result && (result.status === 'success' || result.status === 'ok')) {
+      dailyMsg.textContent = result.message || '+5 stars added to your balance! ✨';
       dailyBtn.disabled = true;
+      dailyBtn.innerHTML = '✅ Claimed Today';
+      showToast(result.message || 'Daily bonus claimed! +5 stars 🎉', 3000, 'success');
+      speakText('Daily bonus claimed! Five stars added to your balance!');
+      createConfetti();
+      
+      // Refresh data to show updated balance
+      setTimeout(() => {
+        loadData();
+      }, 1500);
+    } 
+    // Handle "already claimed" case - treat as success with info message
+    else if (result && (result.alreadyClaimed || result.status === 'error' && result.message?.includes('already claimed'))) {
+      dailyMsg.textContent = result.message || 'Daily bonus already claimed! Come back tomorrow! 🌟';
+      dailyBtn.disabled = true;
+      dailyBtn.innerHTML = '✅ Claimed Today';
+      showToast(result.message || 'Already claimed your daily bonus! Come back tomorrow! 🌟', 3000);
+      speakText('Already claimed your daily bonus! Come back tomorrow!');
+    }
+    // Handle other errors
+    else {
+      dailyMsg.textContent = result?.message || 'Failed to claim bonus. Try again!';
+      showToast('Claim failed. Please try again!', 3000, 'error');
+      speakText('Claim failed. Please try again!');
+      // Reset button on failure
+      dailyBtn.innerHTML = originalText;
+      dailyBtn.disabled = false;
+    }
+  } catch (error) {
+    console.error('Daily claim error:', error);
+    
+    // Check if it's an "already claimed" error from the exception message
+    if (error.message && error.message.includes('already claimed')) {
+      dailyMsg.textContent = error.message || 'Daily bonus already claimed! Come back tomorrow! 🌟';
+      dailyBtn.disabled = true;
+      dailyBtn.innerHTML = '✅ Claimed Today';
+      showToast(error.message || 'Already claimed your daily bonus! Come back tomorrow! 🌟', 3000);
+      speakText('Already claimed your daily bonus! Come back tomorrow!');
+    } else {
+      // It's a real error
+      dailyMsg.textContent = 'Claim failed. Try again!';
+      showToast('Daily claim failed! Please try again.', 3000, 'error');
+      speakText('Daily claim failed! Please try again.');
+      // Reset button on failure
+      dailyBtn.innerHTML = originalText;
+      dailyBtn.disabled = false;
+    }
+  }
+}
+
+async function checkDailyClaimStatus() {
+  if (!currentKid) return;
+  
+  const dailyBtn = $('dailyBtn');
+  const dailyMsg = $('dailyMsg');
+  
+  if (!dailyBtn || !dailyMsg) return;
+  
+  try {
+    const result = await api.claimDailyBonus({ 
+      kid_id: currentKid.kid_id, 
+      kid_name: currentKid.name,
+      checkOnly: true 
+    });
+    
+    // Handle different response formats
+    if (result && (result.alreadyClaimed || result.status === 'error' && result.message?.includes('already claimed'))) {
+      dailyBtn.disabled = true;
+      dailyBtn.innerHTML = '✅ Claimed Today';
+      dailyMsg.textContent = result.message || 'Daily bonus already claimed! Come back tomorrow! 🌟';
+    } else if (result && (result.status === 'success' || result.status === 'ok' || result.available)) {
+      dailyBtn.disabled = false;
+      dailyBtn.innerHTML = 'Claim +5 Stars';
       dailyMsg.textContent = '';
-
-      const payload = {
-        kid_id: currentKid.kid_id,
-        kid_name: currentKid.name
-      };
-
-      try {
-        const result = await api.claimDailyBonus(payload);
-        
-        if (result && (result.status === 'success' || result.status === 'ok')) {
-          dailyMsg.textContent = result.message || '+5 stars added to your balance! ✨';
-          dailyBtn.disabled = true; // Disable for today
-          dailyBtn.innerHTML = '✅ Claimed Today';
-          showToast(result.message || 'Daily bonus claimed! +5 stars 🎉', 3000, 'success');
-          speakText('Daily bonus claimed! Five stars added to your balance!');
-          createConfetti();
-          
-          // Refresh data to show updated balance
-          setTimeout(() => {
-            loadData();
-          }, 1500);
-          
-        } else if (result && result.alreadyClaimed) {
-          // Already claimed today
-          dailyMsg.textContent = result.message;
-          dailyBtn.disabled = true;
-          dailyBtn.innerHTML = '✅ Claimed Today';
-          showToast('Already claimed your daily bonus! Come back tomorrow! 🌟', 3000);
-          speakText('Already claimed your daily bonus! Come back tomorrow!');
-          
-        } else {
-          // Other error
-          dailyMsg.textContent = result?.message || 'Failed to claim bonus. Try again!';
-          showToast('Claim failed. Please try again!', 3000, 'error');
-          speakText('Claim failed. Please try again!');
-        }
-      } catch (error) {
-        console.error('Daily claim error:', error);
-        dailyMsg.textContent = 'Claim failed. Try again!';
-        showToast('Daily claim failed! Please try again.', 3000, 'error');
-        speakText('Daily claim failed! Please try again.');
-        // Reset button on failure
-        dailyBtn.innerHTML = originalText;
-        dailyBtn.disabled = false;
-      }
+    } else {
+      // If response format is unexpected, enable button anyway
+      dailyBtn.disabled = false;
+      dailyBtn.innerHTML = 'Claim +5 Stars';
+      dailyMsg.textContent = '';
     }
-
-    async function checkDailyClaimStatus() {
-      if (!currentKid) return;
-      
-      const dailyBtn = $('dailyBtn');
-      const dailyMsg = $('dailyMsg');
-      
-      if (!dailyBtn || !dailyMsg) return;
-      
-      try {
-        const result = await api.claimDailyBonus({ 
-          kid_id: currentKid.kid_id, 
-          kid_name: currentKid.name,
-          checkOnly: true 
-        });
-        
-        if (result && result.alreadyClaimed) {
-          dailyBtn.disabled = true;
-          dailyBtn.innerHTML = '✅ Claimed Today';
-          dailyMsg.textContent = result.message || 'Daily bonus already claimed!';
-        } else {
-          dailyBtn.disabled = false;
-          dailyBtn.innerHTML = 'Claim +5 Stars';
-          dailyMsg.textContent = '';
-        }
-      } catch (error) {
-        // If check fails, enable button anyway
-        dailyBtn.disabled = false;
-        dailyBtn.innerHTML = 'Claim +5 Stars';
-      }
-    }
-
+  } catch (error) {
+    console.log('Daily check error (non-critical):', error);
+    // If check fails, enable button anyway to allow claiming
+    dailyBtn.disabled = false;
+    dailyBtn.innerHTML = 'Claim +5 Stars';
+    dailyMsg.textContent = '';
+  }
+}
     /* ---------- UI Components ---------- */
     function showModal(opts){
       const root = $('modalRoot');
