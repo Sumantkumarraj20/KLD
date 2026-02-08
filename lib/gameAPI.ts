@@ -13,6 +13,7 @@ export class GameAPI {
   /**
    * Submit level completion with stars earned
    * This integrates with existing award system
+   * Includes retry logic for reliable backend sync
    */
   async submitLevelCompletion(
     kidId: string,
@@ -24,7 +25,7 @@ export class GameAPI {
     try {
       // Simplified reason format: "Language 1"
       const domainName = this.getDomainDisplayName(domain);
-      const reason = `${domainName} ${levelNumber}`;
+      const reason = `${domainName} Level ${levelNumber} (${starsEarned}★)`;
       
       // Track level completion with SuperMemo
       const levelKey = `${domain}-level-${levelNumber}`;
@@ -35,10 +36,36 @@ export class GameAPI {
       );
       this.storeLevelCompletion(kidId, levelKey, completion);
 
-      // Award points using existing system
-      await api.awardPoints(kidId, pointsAwarded, reason, "game-engine");
+      // Award points using existing system with retry logic
+      let apiSuccess = false;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          await api.awardPoints(kidId, pointsAwarded, reason, "game-engine");
+          apiSuccess = true;
+          console.log(`✅ Level completion (${reason}) synced to backend on attempt ${attempt + 1}`);
+          break;
+        } catch (apiError) {
+          console.warn(
+            `API sync attempt ${attempt + 1}/3 failed for level completion:`,
+            apiError
+          );
+          if (attempt < 2) {
+            // Wait before retrying (exponential backoff)
+            await new Promise((resolve) =>
+              setTimeout(resolve, 500 * (attempt + 1))
+            );
+          }
+        }
+      }
 
-      // Return award record
+      if (!apiSuccess) {
+        console.warn(
+          `Failed to sync level completion after 3 attempts - ${pointsAwarded} points will sync when connection restored`
+        );
+        // Points are stored locally and will sync on next successful request
+      }
+
+      // Return award record regardless of API sync (local state is source of truth)
       const award: LevelAward = {
         award_id: `award-${kidId}-${domain}-level-${levelNumber}-${Date.now()}`,
         kid_id: kidId,

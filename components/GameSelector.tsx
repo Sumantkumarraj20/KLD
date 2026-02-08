@@ -59,43 +59,41 @@ export function DomainSelector({
         const timeUntilUnlock = kidId ? gameAPI.getTimeUntilUnlock(kidId, domain.id, nextLevel) : "";
 
         return (
-          <Link key={domain.id} href={`/domains/${domain.id}`} className="block">
-            <a>
-              <div
-                onClick={() => onSelectDomain(domain.id)}
-                className={`p-6 rounded-xl transition-all transform hover:scale-105 ${
-                  selectedDomain === domain.id
-                    ? `bg-gradient-to-r ${domain.color} text-white shadow-xl ring-2 ring-offset-2`
-                    : "bg-white text-neutral-800 shadow hover:shadow-lg border-2 border-transparent"
-                }`}
-              >
-                <div className="flex flex-col items-center gap-3 text-center">
-                  <div
-                    className={`p-3 rounded-lg ${
-                      selectedDomain === domain.id
-                        ? "bg-white/20"
-                        : `bg-gradient-to-r ${domain.color} text-white p-3 rounded-lg`
-                    }`}
-                  >
-                    {domain.icon}
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg">{domain.name}</h3>
-                    <p className="text-sm opacity-75">{domain.description}</p>
-                  </div>
-                  <div className="text-2xl font-bold">
-                    Level {domainProgress[domain.id] || 1}
-                  </div>
-
-                  {lockStatus.isLocked && (
-                    <div className="mt-2 flex items-center gap-2 text-amber-600 text-sm">
-                      <Lock className="h-4 w-4" />
-                      <span>Next unlocks in {timeUntilUnlock}</span>
-                    </div>
-                  )}
+          <Link key={domain.id} href={`/domains/${domain.id}`}>
+            <div
+              onClick={() => onSelectDomain(domain.id)}
+              className={`p-6 rounded-xl transition-all transform hover:scale-105 block cursor-pointer ${
+                selectedDomain === domain.id
+                  ? `bg-gradient-to-r ${domain.color} text-white shadow-xl ring-2 ring-offset-2`
+                  : "bg-white text-neutral-800 shadow hover:shadow-lg border-2 border-transparent"
+              }`}
+            >
+              <div className="flex flex-col items-center gap-3 text-center">
+                <div
+                  className={`p-3 rounded-lg ${
+                    selectedDomain === domain.id
+                      ? "bg-white/20"
+                      : `bg-gradient-to-r ${domain.color} text-white p-3 rounded-lg`
+                  }`}
+                >
+                  {domain.icon}
                 </div>
+                <div>
+                  <h3 className="font-bold text-lg">{domain.name}</h3>
+                  <p className="text-sm opacity-75">{domain.description}</p>
+                </div>
+                <div className="text-2xl font-bold">
+                  Level {domainProgress[domain.id] || 1}
+                </div>
+
+                {lockStatus.isLocked && (
+                  <div className="mt-2 flex items-center gap-2 text-amber-600 text-sm">
+                    <Lock className="h-4 w-4" />
+                    <span>Next unlocks in {timeUntilUnlock}</span>
+                  </div>
+                )}
               </div>
-            </a>
+            </div>
           </Link>
         );
       })}

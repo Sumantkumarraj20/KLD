@@ -60,16 +60,41 @@ export const DailyBonusCard: React.FC<DailyBonusCardProps> = ({
 
       if (result.success) {
         // Award points via API to GoogleSheets for audit trail
-        try {
-          await api.awardPoints(
-            kidId,
-            result.pointsAwarded,
-            `Daily bonus (Day ${result.streakDays})`,
-            "daily_bonus"
+        let apiSuccess = false;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            await api.awardPoints(
+              kidId,
+              result.pointsAwarded,
+              `Daily bonus claimed (${result.streakDays} day streak)`,
+              "daily_bonus"
+            );
+            apiSuccess = true;
+            console.log("✅ Daily bonus synced to backend successfully");
+            break;
+          } catch (apiError) {
+            console.warn(
+              `API sync attempt ${attempt + 1}/3 failed:`,
+              apiError
+            );
+            if (attempt < 2) {
+              // Wait before retrying (exponential backoff)
+              await new Promise((resolve) =>
+                setTimeout(resolve, 500 * (attempt + 1))
+              );
+            }
+          }
+        }
+
+        if (!apiSuccess) {
+          console.warn(
+            "Failed to sync daily bonus after 3 attempts - local state updated"
           );
-        } catch (apiError) {
-          console.warn("Failed to sync daily bonus to backend:", apiError);
-          // Continue even if API fails - local state is updated
+          if (onError) {
+            onError(
+              "Bonus claimed but sync pending. Your points will update shortly."
+            );
+          }
         }
 
         setJustClaimed(true);
