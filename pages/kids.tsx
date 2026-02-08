@@ -6,7 +6,9 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { api } from "@/lib/api";
 import { SpeakButton } from "@/components/SpeakButton";
+import { DailyBonusCard } from "@/components/DailyBonusCard";
 import { logSpeechSynthesisInfo } from "@/lib/speechDebug";
+import { ClaimBonusResult } from "@/lib/dailyBonus";
 
 /* ======================= Types ======================= */
 
@@ -231,6 +233,21 @@ export default function KidsDashboard() {
               size="sm"
             />
           </div>
+
+          {/* Daily Bonus Card */}
+          <DailyBonusCard
+            kidId={activeKid.kid_id}
+            onBonusClaimed={(result: ClaimBonusResult) => {
+              if (result.success) {
+                showToast(result.message, "success");
+                // Reload data to reflect new points balance
+                loadData();
+              }
+            }}
+            onError={(error: string) => {
+              showToast(error, "warning");
+            }}
+          />
 
           {/* Rewards */}
           <section>
