@@ -9,10 +9,10 @@ self.__BUILD_MANIFEST = {
     "static/chunks/2f8894953f3e1b9a.js"
   ],
   "/domains/logical": [
-    "static/chunks/134ff11f959e3fa5.js"
+    "static/chunks/d98a7442880ad825.js"
   ],
   "/domains/mathematics": [
-    "static/chunks/fbab437fed6d74c8.js"
+    "static/chunks/e80652427f1d4222.js"
   ],
   "/game": [
     "static/chunks/e10a1bb11868f7a8.js"
