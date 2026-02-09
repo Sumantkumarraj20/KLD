@@ -6,7 +6,7 @@
     "dev": "NODE_ENV=development next dev",
     "build": "NODE_ENV=production next build",
     "export": "NODE_ENV=production next build && next export",
-    "deploy": "npm run export && echo 'Ready to push ./out to gh-pages branch'",
+    "deploy": "echo 'Ready to push ./out to gh-pages branch'",
     "start": "NODE_ENV=production next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit"
@@ -15,6 +15,7 @@
     "@types/node": "25.2.1",
     "@types/react": "19.2.13",
     "create-next-app": "^16.1.6",
+    "gh-pages": "^6.3.0",
     "next": "^16.1.6",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
