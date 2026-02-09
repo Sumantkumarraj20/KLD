@@ -83,7 +83,6 @@ function LogicalLevelCard({
   const [timeUntilUnlock, setTimeUntilUnlock] = useState("");
   const [stars, setStars] = useState(0);
   const router = useRouter();
-
   useEffect(() => {
     const unlockTime = gameAPI.getTimeUntilUnlock(kidId, "logical", levelNumber);
     const lockStatus = gameAPI.getLevelLockStatus(kidId, "logical", levelNumber);
@@ -95,7 +94,7 @@ function LogicalLevelCard({
   }, [kidId, levelNumber]);
 
   const handleStart = () => {
-    router.push(`/game?domain=language&level=${levelNumber}`);
+    router.push(`/game?domain=logical&level=${levelNumber}`);
   };
 
   return (

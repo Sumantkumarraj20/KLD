@@ -95,7 +95,7 @@ function MathematicsLevelCard({
   }, [kidId, levelNumber]);
 
   const handleStart = () => {
-    router.push(`/game?domain=language&level=${levelNumber}`);
+    router.push(`/game?domain=mathematics&level=${levelNumber}`);
   };
 
   return (
