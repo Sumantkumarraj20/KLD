@@ -7,6 +7,7 @@ import { auth } from "@/lib/auth";
 import { gameAPI } from "@/lib/gameAPI";
 import { GameDomain } from "@/lib/gameTypes";
 import { ArrowLeft, Lock, Clock } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const DOMAIN: GameDomain = "logical";
 
@@ -81,6 +82,7 @@ function LogicalLevelCard({
   const [isLocked, setIsLocked] = useState(false);
   const [timeUntilUnlock, setTimeUntilUnlock] = useState("");
   const [stars, setStars] = useState(0);
+  const router = useRouter();
 
   useEffect(() => {
     const unlockTime = gameAPI.getTimeUntilUnlock(kidId, "logical", levelNumber);
@@ -93,7 +95,7 @@ function LogicalLevelCard({
   }, [kidId, levelNumber]);
 
   const handleStart = () => {
-    window.location.href = `/game?domain=logical&level=${levelNumber}`;
+    router.push(`/game?domain=language&level=${levelNumber}`);
   };
 
   return (
