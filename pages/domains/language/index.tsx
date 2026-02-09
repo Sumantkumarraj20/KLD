@@ -99,7 +99,7 @@ function LanguageLevelCard({
 
   const handleStart = () => {
     // Navigate to game with domain and level preset
-    window.location.href = `/game?domain=language&level=${levelNumber}`;
+    window.location.href = `KLD/game?domain=language&level=${levelNumber}`;
   };
 
   return (
