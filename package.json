@@ -6,7 +6,8 @@
     "dev": "NODE_ENV=development next dev",
     "build": "NODE_ENV=production next build",
     "export": "NODE_ENV=production next build && next export",
-    "deploy": "echo 'Ready to push ./out to gh-pages branch'",
+    "predeploy": "npm run build && touch out/.nojekyll && cp out/index.html out/404.html",
+    "deploy": "gh-pages -d out",
     "start": "NODE_ENV=production next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit"
