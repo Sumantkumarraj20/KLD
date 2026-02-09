@@ -1,27 +1,27 @@
 self.__BUILD_MANIFEST = {
   "/": [
-    "static/chunks/a3a8f97fef91bba1.js"
+    "static/chunks/c84cc1a64b06866e.js"
   ],
   "/_error": [
-    "static/chunks/db0c8318c1e6ab2e.js"
+    "static/chunks/9ea6dcc70fe08d3e.js"
   ],
   "/domains/language": [
-    "static/chunks/b7bb6ac9dfd64266.js"
+    "static/chunks/1dacdd11d7ea38ef.js"
   ],
   "/domains/logical": [
-    "static/chunks/763d8a18534a9d31.js"
+    "static/chunks/483c707cd8bbb954.js"
   ],
   "/domains/mathematics": [
-    "static/chunks/07ce88f6c2d07c97.js"
+    "static/chunks/c77f1bcb9bfad43f.js"
   ],
   "/game": [
-    "static/chunks/5c04dec3075e2c84.js"
+    "static/chunks/106defabeea01044.js"
   ],
   "/kids": [
-    "static/chunks/d318480eb31131a1.js"
+    "static/chunks/18b0dff7162fca55.js"
   ],
   "/parent": [
-    "static/chunks/17a9f8532ce9f51b.js"
+    "static/chunks/dcac294bf4931d3f.js"
   ],
   "__rewrites": {
     "afterFiles": [],
